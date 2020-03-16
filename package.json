@@ -1,0 +1,21 @@
+{
+  "name": "animation-writing.js",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "directory": "git+https://github.com/ofaaoficial/animation-writing.js"
+  },
+  "keywords": [],
+  "author": "Oscar Amado",
+  "license": "MIT",
+  "bugs": {
+    "email": "oscarfamado@gmail.com",
+    "url": "https://github.com/ofaaoficial/animation-writing.js/issues"
+  },
+  "homepage": "https://github.com/ofaaoficial/animation-writing.js#readme"
+}
