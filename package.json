@@ -1,16 +1,16 @@
 {
-  "name": "animation-writing.js",
+  "name": "writing.js",
   "version": "1.0.0",
-  "description": "",
-  "main": "src/index.js",
+  "description": "Animation writing letter-by-letter and erase.",
+  "main": "src/writing.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  },  
   "repository": {
     "type": "git",
     "directory": "git+https://github.com/ofaaoficial/animation-writing.js"
   },
-  "keywords": [],
+  "keywords": ["writing", "animation", "writing.js", "writing-animation", "letter", "node", "ofaaoficial", "character", "es6"],
   "author": "Oscar Amado",
   "license": "MIT",
   "bugs": {
