@@ -1,5 +1,7 @@
+"use strict";
+
 /**
- * AnimationWriting JavaScript Library v.0.0.1
+ * AnimationWriting JavaScript Library v.1.0.2
  * https://github.com/ofaaoficial/animation-writing.js
  *
  * Copyright Oscar Amado
@@ -10,49 +12,74 @@
 
 /**
  * @description
- *  EN: Getting the DOM element.
- *  ES: Obtención del elemento del DOM.
+ *  EN: Getting an element or NodeList by selector.
+ *  ES: Obtención de un elemento o lista de elementos por su selector.
  * @param selector: String
- * @return {nodeElement}
- *
+ * @return {nodeElement || nodeElement[]}
  */
-const $ = selector => document.querySelector(selector);
-
-const GLOBAL_CONFIG_ANIMATION_WRITING = {
-    WRITTER_TIME_INTERVAL: 200,
-    ERASER_TIME_INTERVAL: 150,
-    READING_TIME_INTERVAL: 1000
+const $ = selector => {
+    const query = document.querySelectorAll(selector);
+    return query.length === 1 ? query[0] : query;
 };
 
+/**
+ * @description
+ *  EN: Function responsible for throw an Error object with a message and correction example.
+ *  ES: Función encargada de lanzar un objeto de Error con un mensaje y ejemplo de correción.
+ * @param message: String
+ * @param example: String
+ * @type {Error}
+ */
+const errorMessage = (message, example = '') => {
+    throw new Error(`\n\n  ${message} \n ${example} \n\n`)
+};
+
+/**
+ * @description
+ *  EN: Function to run the main animation of the Writing.js library.
+ *  ES: Función para ejecutar la animación principal de la libreria Writing.js.
+ * @param selector: String
+ */
 const animationWriting = async selector => {
     /**
      * @description
-     *  EN: Variable with the HTML element to which the animation will be performed.
-     *  ES: Variable con el elemento HTML al cual se le va a realizar la animación.
+     *  EN: Variable with the HTML principal to which the animation will be performed.
+     *  ES: Variable con el elemento principal al cual se le va a realizar la animación.
      * @type {nodeElement}
      */
     let elementHTML = $(selector);
 
     /**
      * @description
-     * EN: Getting words from the `words` attribute to add them to an array.
-     * ES: Obtención de palabras del atributo `words` para agregarlas en un arreglo.
-     * @type {string[]}
+     *  EN: Array with the content to which the animation will be performed.
+     *  ES: Arreglo con el contenido al cual se le va a realizar la animacion.
+     * @type {nodeElement[]}
      */
-    let words = elementHTML.getAttribute('words').split(',');
+    let words = getWords(elementHTML);
 
     /**
      * @description
-     * EN: Variable que contendrá el contenido inicial del elemento HTML.
-     * ES: Variable que contendra la primera palabra del elemento HTML.
+     * EN: Variable that will contain the first content or word of the main element to end the animation
+     *     with that word.
+     * ES: Variable que contendrá el primer contenido o palabra del elemento principal para finalizar
+     *     la animación con esa palabra.
      * @type {string}
      */
     let firstContent = '';
 
     /**
      * @description
-     * EN: The content of the HTML element is verified; if there is content, run the delete word animation to empty the content.
-     * ES: Se verifica el contenido del elemento HTML; si hay contenido, ejecuta la animación para vaciar el contenido.
+     * EN: Validation that the HTML element is not empty on the contrary throws an error.
+     * ES: Validación de que el elemento HTML no este vacío por el contrario lanza un error.
+     */
+    if (!elementHTML) {
+        errorMessage('You must define the selector for the existing HTML element.', '<p => id="example" <= wj-words="Here, is, the, problem..."><p>');
+    }
+
+    /**
+     * @description
+     * EN: The content of the HTML element is verified; if there is content save data, run the delete word animation to empty the content.
+     * ES: Se verifica el contenido del elemento HTML; si hay contenido lo almacena, ejecuta la animación para vaciar el contenido.
      */
     if (elementHTML.innerHTML) {
         firstContent = elementHTML.innerHTML;
@@ -63,7 +90,7 @@ const animationWriting = async selector => {
      * @description
      * EN: For each all the words in the `words (array)`  are traversed to make the animation of writing and erased each one
      *     using promises to wait for the execution.
-     * ES: Se recorre todas las palabras en el arreglo `words` para realizar la animacion de escritura y borrado de cada `word`
+     * ES: Recorre todas las palabras en el arreglo `words` para realizar la animacion de escritura y borrado de cada `word`
      *     utilizando promesas para esperar la ejecucion.
      */
     for (let word of words) {
@@ -83,10 +110,55 @@ const animationWriting = async selector => {
 
 /**
  * @description
- * EN: This function loops through a character array to create animation at the visual write level, the write time can be modified
- *     in the `GLOBAL_CONFIG_ANIMATION_WRITING.WRITTER_TIME_INTERVAL` object.
+ *  EN: Function in charge of obtaining the content to be animated can be through elements with class assigned
+ *      in the attribute 'wj-class' or words with the attribute 'wj-words'.
+ *  ES: Función encargada de obtener el contenido que se va a animar puede ser por medio de elementos con clase
+ *      asignada en el atributo 'wj-class' o palabras con el atributo 'wj-words'.
+ * @param elementHTML
+ * @returns {[]}
+ */
+const getWords = (elementHTML) => {
+    const attributeWords = elementHTML.getAttribute('wj-words');
+    let words = [];
+    let className = `.${elementHTML.getAttribute('wj-class')}` || '.wj-word';
+    /**
+     * @description
+     *  EN: It is validated that the attribute `words` is defined in order to run the animation.
+     *  ES: Se valida que este definido el atributo `palabras` para poder ejecutar la animación.
+     */
+    if (attributeWords) {
+        /**
+         * @description
+         * EN: Getting words from the `words` attribute to add them to an array.
+         * ES: Obtención de palabras del atributo `words` para agregarlas en un arreglo.
+         * @type {string[]}
+         */
+        words = attributeWords.split(',');
+    } else {
+
+        const contents = $(className);
+
+        if (contents.length === 1) {
+            errorMessage('It is recommended that you use the \'wj-words\' tag for a single word.', '<p id="example" wj-words="word"><p>');
+        } else if (contents.length < 1) {
+            errorMessage('Items with these classes are required to run the animation.');
+        }
+
+        contents.forEach(element => {
+            words.push(element.innerText);
+            element.remove();
+        });
+    }
+
+    return words;
+};
+
+/**
+ * @description
+ * EN: This function loops through a character array to create an animation at the visual writing level, the writing time can
+ *     be modified in it with the `writer-time` attribute.
  * ES: Esta función recorre un arreglo de caracteres para crear una animación a nivel visual de escritura, el tiempo de escritura
- *     puede ser modificado en el objeto `GLOBAL_CONFIG_ANIMATION_WRITING.WRITTER_TIME_INTERVAL`.
+ *     puede ser modificado en el con el atributo `writer-time`.
  * @param elementHTML: NodeElement
  * @param arrayLetters: Array<String>
  * @returns {Promise<null>}
@@ -107,19 +179,17 @@ const writer = (elementHTML, arrayLetters = ['n', 'o', ' ', 't', 'e', 'x', 't'])
 
             positionArrayCharacters++;
 
-        }, GLOBAL_CONFIG_ANIMATION_WRITING.WRITTER_TIME_INTERVAL);
+        }, elementHTML.getAttribute('wj-writerTime') || 150);
     });
 
 /**
  * @description
- * EN: This function loops through the content of an element to create an animation at the visual level of erased,
- *     the erased time can be modified in the `GLOBAL_CONFIG_ANIMATION_WRITING.ERASER_TIME_INTERVAL` object,
- *     it also has a waiting interval for the erased, the time of this interval can be modified in the
- *     `GLOBAL_CONFIG_ANIMATION_WRITING.READING_TIME_INTERVAL` object.
+ * EN: This function loops through the content of an element to create an animation at the visual level of deletion,
+ *     the deletion time can be modified with the attribute `eraser-time`, it also has a waiting interval for deletion,
+ *     the time of this interval can be modified in the `read-time` attribute.
  * ES: Esta función recorre el contenido de un elemento para crear una animación a nivel visual de borrado, el tiempo
- *     de borrado puede ser modificado en el objeto `GLOBAL_CONFIG_ANIMATION_WRITING.EREASER_TIME_INTERVAL` además
- *     tiene un intervalo de espera para la eliminación el tiempo de este intervalo puede ser modificado en el objeto
- *     `GLOBAL_CONFIG_ANIMATION_WRITING.READING_TIME_INTERVAL`.
+ *     de borrado puede ser modificado con el atributo `eraser-time` además tiene un intervalo de espera para la
+ *     eliminación, el tiempo de este intervalo puede ser modificado en el atributo `read-time`.
  * @param elementHTML: NodeElement
  * @returns {Promise<null>}
  */
@@ -139,14 +209,12 @@ const eraser = elementHTML =>
                 else
                     resolve(clearInterval(intervalAnimationEraser));
 
-            }, GLOBAL_CONFIG_ANIMATION_WRITING.ERASER_TIME_INTERVAL)
-        }, GLOBAL_CONFIG_ANIMATION_WRITING.READING_TIME_INTERVAL);
+            }, elementHTML.getAttribute('wj-eraserTime') || 150)
+        }, elementHTML.getAttribute('wj-readTime') || 1000);
     });
 
 module.exports = {
-    $,
-    writer,
-    eraser,
     animationWriting,
-    GLOBAL_CONFIG_ANIMATION_WRITING
+    writer,
+    eraser
 };
