@@ -1,0 +1,40 @@
+<!doctype html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Example with vanilla | Writing.js</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+<h1>Basic example Writing.js - by <a href="http://github.com/ofaaoficial">ofaaoficial</a></h1>
+
+<section class="container">
+    <!--
+        EN: Element to which the animation with the attribute `wj-words` will be executed.
+        ES: Elemento al cual se le va a ejecutar la animación con el atributo `wj-words`.
+     -->
+    <h2>Hello <span id="example"
+                    wj-words="mundo, wêreld, свят, svět, 世界, עולם, विश्व, جهان, Мир">world</span>!
+    </h2>
+</section>
+<!--
+    EN: Add library in the `body` of the document.
+    ES: Agregar librería en el `body` del documento.
+ -->
+<script src="https://unpkg.com/writing.js"></script>
+<script>
+    /**
+     * @description
+     *  EN: This is the only line that we need to make it work it would release it,
+     *      we call the function and send as parameter a string with the selector of
+     *      the element to which the animation will be executed.
+     *  ES: Esta es la única línea que necesitamos para hacer funcionar la liberaría,
+     *      llamamos la función y enviamos como parámetro un string con el selector
+     *      del elemento al cual se le va a ejecutar la animación.
+     */
+    animationWriting('#example');
+</script>
+</body>
+</html>

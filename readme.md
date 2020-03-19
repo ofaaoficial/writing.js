@@ -1,6 +1,6 @@
-# Writing Animation JS
+# ⌨ Writing Animation JS
 ![Example of animation](assets/imgs/exampleAnimation.gif)
-## Instalation
+## 🛠 Instalation
 Below are some of the most common ways to include `writing.js`.
 
 ### Browser
@@ -28,7 +28,7 @@ There are several ways to use Browserify and Webpack. For more information on us
 const animationWriting = require('writing.js');
 ```
 
-## How to usage?
+## 🤔 How to usage?
 To use `writing.js` in your website.
  * Create an HTML element to which the animation will be executed and add the attribute `wj-words` with the words separated with the comma character `,` which will be animated.
  * Now simply add the `javascript` in the `<body>` element of your document.
@@ -36,7 +36,7 @@ To use `writing.js` in your website.
  
  That is all!
 
-## Examples
+## 😋 Examples
 Now some examples.
 ### VanillaJS
 [Codepen example](https://codepen.io/ofaaoficial/pen/abOjvGK)
@@ -103,7 +103,7 @@ Now some examples.
 </html>
 ```
 
-`Now just enjoy the magic.` 
+`Now just enjoy the magic. 🤓` 
 
 ## License 🔥
 Copyright © 2020-present [Oscar Amado](https://github.com/ofaaoficial) 🧔
