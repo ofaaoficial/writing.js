@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * AnimationWriting JavaScript Library v.1.0.2
+ * AnimationWriting JavaScript Library v.1.0.3
  * https://github.com/ofaaoficial/animation-writing.js
  *
  * Copyright Oscar Amado
@@ -36,11 +36,39 @@ const errorMessage = (message, example = '') => {
 
 /**
  * @description
+ *  EN: Global variable with the times in ms (microseconds) of the animations..
+ *  ES: Variable global con los tiempos en ms (microsegundos) de las animaciones.
+ */
+let GLOBAL_OPTIONS = {
+    times: {
+        writer: 150,
+        eraser: 150,
+        read: 1000
+    }
+};
+
+/**
+ * @description
  *  EN: Function to run the main animation of the Writing.js library.
  *  ES: Función para ejecutar la animación principal de la libreria Writing.js.
  * @param selector: String
+ * @param arrayContent: Array
+ * @param options: Object
  */
-const animationWriting = async selector => {
+const animationWriting = async (selector, arrayContent = [], options = null) => {
+    if (options && !options.times) {
+        errorMessage('You must specify the times of the animation with a `times` attribute.',
+            `
+            {
+             => times: { <=
+                writer: 150,
+                eraser: 150,
+                read: 1000
+            }`);
+    }
+
+    GLOBAL_OPTIONS = {...options};
+
     /**
      * @description
      *  EN: Variable with the HTML principal to which the animation will be performed.
@@ -55,7 +83,7 @@ const animationWriting = async selector => {
      *  ES: Arreglo con el contenido al cual se le va a realizar la animacion.
      * @type {nodeElement[]}
      */
-    let words = getWords(elementHTML);
+    let words = [];
 
     /**
      * @description
@@ -66,6 +94,8 @@ const animationWriting = async selector => {
      * @type {string}
      */
     let firstContent = '';
+
+    words = arrayContent && arrayContent.length > 0 ? arrayContent : getWords(elementHTML);
 
     /**
      * @description
@@ -136,15 +166,15 @@ const getWords = (elementHTML) => {
         words = attributeWords.split(',');
     } else {
 
-        const contents = $(className);
+        const content = $(className);
 
-        if (contents.length === 1) {
+        if (content.length === 1) {
             errorMessage('It is recommended that you use the \'wj-words\' tag for a single word.', '<p id="example" wj-words="word"><p>');
-        } else if (contents.length < 1) {
+        } else if (content.length < 1) {
             errorMessage('Items with these classes are required to run the animation.');
         }
 
-        contents.forEach(element => {
+        content.forEach(element => {
             words.push(element.innerText);
             element.remove();
         });
@@ -179,7 +209,7 @@ const writer = (elementHTML, arrayLetters = ['n', 'o', ' ', 't', 'e', 'x', 't'])
 
             positionArrayCharacters++;
 
-        }, elementHTML.getAttribute('wj-writerTime') || 150);
+        }, elementHTML.getAttribute('wj-writerTime') || GLOBAL_OPTIONS.times.writer);
     });
 
 /**
@@ -209,8 +239,8 @@ const eraser = elementHTML =>
                 else
                     resolve(clearInterval(intervalAnimationEraser));
 
-            }, elementHTML.getAttribute('wj-eraserTime') || 150)
-        }, elementHTML.getAttribute('wj-readTime') || 1000);
+            }, elementHTML.getAttribute('wj-eraserTime') || GLOBAL_OPTIONS.times.eraser)
+        }, elementHTML.getAttribute('wj-readTime') || GLOBAL_OPTIONS.times.read);
     });
 
 module.exports = {
