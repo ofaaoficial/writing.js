@@ -17,7 +17,7 @@
  * @param selector: String
  * @return {nodeElement || nodeElement[]}
  */
-const $ = selector => {
+const getElement = selector => {
     const query = document.querySelectorAll(selector);
     return query.length === 1 ? query[0] : query;
 };
@@ -65,9 +65,9 @@ const animationWriting = async (selector, arrayContent = [], options = null) => 
                 eraser: 150,
                 read: 1000
             }`);
+        GLOBAL_OPTIONS = {...options};
     }
 
-    GLOBAL_OPTIONS = {...options};
 
     /**
      * @description
@@ -75,7 +75,7 @@ const animationWriting = async (selector, arrayContent = [], options = null) => 
      *  ES: Variable con el elemento principal al cual se le va a realizar la animación.
      * @type {nodeElement}
      */
-    let elementHTML = $(selector);
+    let elementHTML = getElement(selector);
 
     /**
      * @description
@@ -166,7 +166,7 @@ const getWords = (elementHTML) => {
         words = attributeWords.split(',');
     } else {
 
-        const content = $(className);
+        const content = getElement(className);
 
         if (content.length === 1) {
             errorMessage('It is recommended that you use the \'wj-words\' tag for a single word.', '<p id="example" wj-words="word"><p>');

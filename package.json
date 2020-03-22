@@ -1,6 +1,6 @@
 {
   "name": "writing.js",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "⌨ Writing.js is animation library keyboard typing and keyboard deleting, customizable and easy to implement.",
   "main": "build/writing.js",
   "scripts": {
