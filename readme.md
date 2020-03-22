@@ -1,5 +1,9 @@
 # ⌨ Writing Animation JS
-![Example of animation](assets/imgs/exampleAnimation.gif)
+<h2 align="center">
+    <a href="http://github.com/ofaaoficial/writing.js">
+        <img src="https://media.giphy.com/media/L3RWwKBVdHxSR7krOH/giphy.gif" alt="Writing.js" />
+    </a>
+</h2>
 ## 🛠 Instalation
 Below are some of the most common ways to include `writing.js`.
 
@@ -30,16 +34,25 @@ const animationWriting = require('writing.js');
 
 ## 🤔 How to usage?
 To use `writing.js` in your website.
+### Option 1
  * Create an HTML element to which the animation will be executed and add the attribute `wj-words` with the words separated with the comma character `,` which will be animated.
  * Now simply add the `javascript` in the `<body>` element of your document.
  * Finally run the `animationWriting(selector)` function, sending a `string` with the `selector` of the element to which you want to run the animation.
+
+[Codepen: example option 1](https://codepen.io/ofaaoficial/pen/abOjvGK)
  
+ ### Option 2
+  * Create an HTML element to which the animation will be executed.
+  * Now simply add the `javascript` in the `<body>` element of your document.
+  * finally call the function `animationWriting(selector, words[])`, sending a `string` with the `selector` of the element to which you want to run the animation and as a `second parameter` send an `array` with the content to animate.
+
+[Codepen: example option 2](https://codepen.io/ofaaoficial/pen/eYNLexR)
+   
  That is all!
 
-## 😋 Examples
-Now some examples.
-### VanillaJS
-[Codepen example](https://codepen.io/ofaaoficial/pen/abOjvGK)
+## 😋 Example
+Now some examples, you can see some examples of the implementation and use of the library in the `/examples`.
+
 * Create an HTML element to which the animation will be executed and add the attribute `wj-words`.
 ```html
 <html>
