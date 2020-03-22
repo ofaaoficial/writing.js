@@ -1,9 +1,5 @@
 # ⌨ Writing Animation JS
-<h2 align="center">
-    <a href="http://github.com/ofaaoficial/writing.js">
-        <img src="https://media.giphy.com/media/L3RWwKBVdHxSR7krOH/giphy.gif" alt="Writing.js" />
-    </a>
-</h2>
+![Animation example Writing.js](https://media.giphy.com/media/L3RWwKBVdHxSR7krOH/giphy.gif)
 ## 🛠 Instalation
 Below are some of the most common ways to include `writing.js`.
 
