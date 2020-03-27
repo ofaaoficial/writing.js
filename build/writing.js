@@ -97,7 +97,7 @@ const animationWriting = async (selector, arrayContent = [], options = null) => 
      */
     let firstContent = '';
 
-    if(options.styles){
+    if(options && options.styles){
         setStyles(selector, options.styles)
     }
 
