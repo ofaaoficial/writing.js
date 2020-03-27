@@ -56,18 +56,19 @@ let GLOBAL_OPTIONS = {
  * @param options: Object
  */
 const animationWriting = async (selector, arrayContent = [], options = null) => {
-    if (options && !options.times) {
-        errorMessage('You must specify the times of the animation with a `times` attribute.',
+    if (options && !options.times && !options.styles) {
+        errorMessage('You can specify the times of the animation with a `times` attribute or styles CSS to element with attribute `styles` send an array with styles.',
             `
             {
              => times: { <=
-                writer: 150,
-                eraser: 150,
-                read: 1000
-            }`);
+                    writer: 150,
+                    eraser: 150,
+                    read: 1000
+                },
+                styles: ["color: white", "background: black"] <=
+            `);
         GLOBAL_OPTIONS = {...options};
     }
-
 
     /**
      * @description
@@ -76,6 +77,7 @@ const animationWriting = async (selector, arrayContent = [], options = null) => 
      * @type {nodeElement}
      */
     let elementHTML = getElement(selector);
+
 
     /**
      * @description
@@ -94,6 +96,10 @@ const animationWriting = async (selector, arrayContent = [], options = null) => 
      * @type {string}
      */
     let firstContent = '';
+
+    if(options.styles){
+        setStyles(selector, options.styles)
+    }
 
     words = arrayContent && arrayContent.length > 0 ? arrayContent : getWords(elementHTML);
 
@@ -211,6 +217,22 @@ const writer = (elementHTML, arrayLetters = ['n', 'o', ' ', 't', 'e', 'x', 't'])
 
         }, elementHTML.getAttribute('wj-writerTime') || GLOBAL_OPTIONS.times.writer);
     });
+
+/**
+ * @description
+ *  EN:
+ *  ES:
+ * @param selector: string
+ * @param ArrayDeclarations: Array<string>
+ */
+const setStyles = (selector, ArrayDeclarations) => {
+    if (!Array.isArray(ArrayDeclarations)) return errorMessage('Is required an array with declarations of styles.',`{styles: ["color: white", "background: black"]} <=` );
+    const sheet = new CSSStyleSheet();
+    let properties = '';
+    ArrayDeclarations.map(property => properties += `${property}; `);
+    sheet.replaceSync(`${selector} {${properties}`);
+    document.adoptedStyleSheets = [sheet];
+};
 
 /**
  * @description

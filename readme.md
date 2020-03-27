@@ -41,7 +41,7 @@ To use `writing.js` in your website.
   * Create an HTML element to which the animation will be executed.
   * Now simply add the `javascript` in the `<body>` element of your document.
   * finally call the function `animationWriting(selector, words[])`, sending a `string` with the `selector` of the element to which you want to run the animation and as a `second parameter` send an `array` with the content to animate.
-  * It is possible to send a `third parameter` with an object to modify the animation times.
+  * It is possible to send a `third parameter` with an object to modify the animation times or styles of element.
 ```html
 <script>
     animationWriting('#example', [
@@ -53,7 +53,8 @@ To use `writing.js` in your website.
            writer: 150, // (ms)
            eraser: 150, // (ms)
            read: 1000 // (ms)
-        }
+        },
+        styles : ['color: #fff', 'background: black'] // (Array of strings with declarations of the properties and value.)
     });
 </script>
 ```
