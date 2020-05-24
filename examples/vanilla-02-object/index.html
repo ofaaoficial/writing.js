@@ -24,6 +24,36 @@
  -->
 <script src="https://unpkg.com/writing.js"></script>
 <script>
+
+    const words = [
+        'mundo',
+        'wêreld',
+        'свят',
+        'svět',
+        '世界',
+        'עולם',
+        'विश्व',
+        'جهان',
+        'Мир'
+    ];
+
+    const configuration = {
+        times: {
+            writer: 100,
+            eraser: 50,
+            read: 1500
+        },
+        styles: [
+            "font-family: Arial",
+            "font-size: 70px",
+            "background: #fff",
+            "color: grey",
+            "text-shadow: 0 2px 2px black",
+            "animation: none",
+            "padding: 5px",
+        ]
+    }
+
     /**
      * @description
      *  EN: This is the only line that we need to make it work, it would release it,
@@ -35,24 +65,7 @@
      *      elemento al cual se le va a ejecutar la animación y como segundo parámetro un
      *      arreglo con el contenido que deseamos animar.
      */
-    animationWriting('#example', [
-        'mundo',
-        'wêreld',
-        'свят',
-        'svět',
-        '世界',
-        'עולם',
-        'विश्व',
-        'جهان',
-        'Мир'
-    ], {
-        times: {
-            writer: 100,
-            eraser: 50,
-            read: 1500
-        },
-        styles: ["font-size: 70px", "background: blue", "text-shadow: 0 2px 2px black"]
-    });
+    animationWriting('#example', words, configuration);
 </script>
 </body>
 </html>
