@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * AnimationWriting JavaScript Library v.1.0.4
+ * AnimationWriting JavaScript Library v.1.1.2
  * https://github.com/ofaaoficial/animation-writing.js
  *
  * Copyright Oscar Amado
