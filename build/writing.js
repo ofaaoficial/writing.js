@@ -1,13 +1,13 @@
 "use strict";
 
 /**
- * AnimationWriting JavaScript Library v.1.0.3
+ * AnimationWriting JavaScript Library v.1.0.4
  * https://github.com/ofaaoficial/animation-writing.js
  *
  * Copyright Oscar Amado
  * @ofaaoficial
  * Released under the MIT license
- * Date: 16/03/2020
+ * Date: 23/05/2020
  */
 
 /**
@@ -15,12 +15,9 @@
  *  EN: Getting an element or NodeList by selector.
  *  ES: Obtención de un elemento o lista de elementos por su selector.
  * @param selector: String
- * @return {nodeElement || nodeElement[]}
+ * @return {nodeElement}
  */
-const getElement = selector => {
-    const query = document.querySelectorAll(selector);
-    return query.length === 1 ? query[0] : query;
-};
+const getElement = selector => document.querySelector(selector);
 
 /**
  * @description
@@ -44,7 +41,8 @@ let GLOBAL_OPTIONS = {
         writer: 150,
         eraser: 150,
         read: 1000
-    }
+    },
+    infinite: false
 };
 
 /**
@@ -97,7 +95,7 @@ const animationWriting = async (selector, arrayContent = [], options = null) => 
      */
     let firstContent = '';
 
-    if(options && options.styles){
+    if (options && options.styles) {
         setStyles(selector, options.styles)
     }
 
@@ -126,8 +124,8 @@ const animationWriting = async (selector, arrayContent = [], options = null) => 
      * @description
      * EN: For each all the words in the `words (array)`  are traversed to make the animation of writing and erased each one
      *     using promises to wait for the execution.
-     * ES: Recorre todas las palabras en el arreglo `words` para realizar la animacion de escritura y borrado de cada `word`
-     *     utilizando promesas para esperar la ejecucion.
+     * ES: Recorre todas las palabras en el arreglo `words` para realizar la animación de escritura y borrado de cada `word`
+     *     utilizando promesas para esperar la ejecución.
      */
     for (let word of words) {
         await writer(elementHTML, [...word]);
@@ -180,7 +178,7 @@ const getWords = (elementHTML) => {
             errorMessage('Items with these classes are required to run the animation.');
         }
 
-        content.forEach(element => {
+        content.map(element => {
             words.push(element.innerText);
             element.remove();
         });
@@ -207,11 +205,11 @@ const writer = (elementHTML, arrayLetters = ['n', 'o', ' ', 't', 'e', 'x', 't'])
         let positionArrayCharacters = 0;
         let positionArrayCharactersMax = arrayLetters.length;
 
-        let intervalAnimationWritter = setInterval(() => {
+        let intervalAnimationWriter = setInterval(() => {
             if (positionArrayCharacters < positionArrayCharactersMax)
                 elementHTML.innerHTML += arrayLetters[positionArrayCharacters];
             else
-                resolve(clearInterval(intervalAnimationWritter));
+                resolve(clearInterval(intervalAnimationWriter));
 
             positionArrayCharacters++;
 
@@ -226,11 +224,11 @@ const writer = (elementHTML, arrayLetters = ['n', 'o', ' ', 't', 'e', 'x', 't'])
  * @param ArrayDeclarations: Array<string>
  */
 const setStyles = (selector, ArrayDeclarations) => {
-    if (!Array.isArray(ArrayDeclarations)) return errorMessage('Is required an array with declarations of styles.',`{styles: ["color: white", "background: black"]} <=` );
+    if (!Array.isArray(ArrayDeclarations)) return errorMessage('Is required an array with declarations of styles.', `{styles: ["color: white", "background: black"]} <=`);
     const sheet = new CSSStyleSheet();
     let properties = '';
     ArrayDeclarations.map(property => properties += `${property}; `);
-    sheet.replaceSync(`${selector} {${properties}`);
+    sheet.replaceSync(`${selector} {position: relative; ${properties}`);
     document.adoptedStyleSheets = [sheet];
 };
 
