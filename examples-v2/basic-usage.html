@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Writing.js v2.0 - Basic Usage</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        
+        .demo-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            opacity: 0.8;
+            font-size: 1.2em;
+            margin-bottom: 40px;
+        }
+        
+        .demo-title {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #ffd700;
+        }
+        
+        .demo-output {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+            font-size: 1.5em;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            border-left: 4px solid #ffd700;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        
+        button {
+            background: #ffd700;
+            color: #333;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        button:hover {
+            background: #ffed4e;
+            transform: translateY(-2px);
+        }
+        
+        button:disabled {
+            background: #666;
+            color: #999;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .code-block {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 6px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>✨ Writing.js v2.0</h1>
+    <p class="subtitle">Enhanced Typography Animation Library</p>
+    
+    <!-- Basic Example -->
+    <div class="demo-section">
+        <h2 class="demo-title">🔤 Basic Typewriter Effect</h2>
+        <div class="demo-output" id="basic-demo">
+            <!-- Animation will appear here -->
+        </div>
+        <div class="controls">
+            <button onclick="startBasic()">Start</button>
+            <button onclick="stopBasic()">Stop</button>
+            <button onclick="restartBasic()">Restart</button>
+        </div>
+        <div class="code-block">
+const writer = new WritingJS('#basic-demo', {
+    words: ['Hello', 'World', 'Welcome', 'to Writing.js v2.0!'],
+    times: { writer: 100, eraser: 50, read: 1500 }
+});
+writer.start();
+        </div>
+    </div>
+
+    <!-- TypeWriter Effect -->
+    <div class="demo-section">
+        <h2 class="demo-title">⌨️ Enhanced Typewriter</h2>
+        <div class="demo-output" id="typewriter-demo">
+            <!-- Animation will appear here -->
+        </div>
+        <div class="controls">
+            <button onclick="startTypewriter()">Start</button>
+            <button onclick="stopTypewriter()">Stop</button>
+            <button onclick="changeSpeed()">Change Speed</button>
+        </div>
+        <div class="code-block">
+const typewriter = new TypeWriter('#typewriter-demo', {
+    words: ['Professional', 'Developer', 'Creative', 'Innovative'],
+    effects: {
+        typing: {
+            randomSpeed: true,
+            pauseOnPunctuation: true
+        }
+    }
+});
+        </div>
+    </div>
+
+    <!-- Fade Effect -->
+    <div class="demo-section">
+        <h2 class="demo-title">🌟 Fade Animation</h2>
+        <div class="demo-output" id="fade-demo">
+            <!-- Animation will appear here -->
+        </div>
+        <div class="controls">
+            <button onclick="startFade()">Start</button>
+            <button onclick="stopFade()">Stop</button>
+            <button onclick="changeFadeDirection()">Change Direction</button>
+        </div>
+        <div class="code-block">
+const fadeWriter = new FadeWriter('#fade-demo', {
+    words: ['Beautiful', 'Smooth', 'Elegant', 'Animations'],
+    effects: {
+        visual: { fadeIn: true }
+    }
+});
+        </div>
+    </div>
+
+    <!-- Glitch Effect -->
+    <div class="demo-section">
+        <h2 class="demo-title">⚡ Cyberpunk Glitch</h2>
+        <div class="demo-output" id="glitch-demo">
+            <!-- Animation will appear here -->
+        </div>
+        <div class="controls">
+            <button onclick="startGlitch()">Start</button>
+            <button onclick="stopGlitch()">Stop</button>
+            <button onclick="changeGlitchIntensity()">Change Intensity</button>
+        </div>
+        <div class="code-block">
+const glitchWriter = new GlitchWriter('#glitch-demo', {
+    words: ['SYSTEM', 'ERROR', 'MATRIX', 'GLITCH'],
+    effects: {
+        errors: { enabled: true, frequency: 0.15 },
+        visual: { glitch: true, shake: true }
+    }
+});
+        </div>
+    </div>
+
+    <!-- Sequence Example -->
+    <div class="demo-section">
+        <h2 class="demo-title">📝 Animation Sequence</h2>
+        <div class="demo-output" id="sequence-demo-1">First line...</div>
+        <div class="demo-output" id="sequence-demo-2">Second line...</div>
+        <div class="controls">
+            <button onclick="startSequence()">Start Sequence</button>
+            <button onclick="stopSequence()">Stop Sequence</button>
+        </div>
+        <div class="code-block">
+const sequence = new WritingSequence()
+    .add('#sequence-demo-1', ['Creating', 'Amazing', 'Sequences'])
+    .wait(500)
+    .add('#sequence-demo-2', ['With', 'Multiple', 'Elements'])
+    .run();
+        </div>
+    </div>
+
+    <script type="module">
+        // Import the library (in a real project you would import from npm)
+        import { WritingJS } from '../src/index.ts';
+        import { TypeWriter } from '../src/effects/TypeWriter.ts';
+        import { FadeWriter } from '../src/effects/FadeWriter.ts';
+        import { GlitchWriter } from '../src/effects/GlitchWriter.ts';
+        import { WritingSequence } from '../src/core/WritingSequence.ts';
+
+        // Store instances globally for demo controls
+        window.instances = {};
+
+        // Basic Demo
+        window.startBasic = () => {
+            if (window.instances.basic) window.instances.basic.destroy();
+            window.instances.basic = new WritingJS('#basic-demo', {
+                words: ['Hello', 'World', 'Welcome', 'to Writing.js v2.0!'],
+                times: { writer: 100, eraser: 50, read: 1500 },
+                infinite: true
+            });
+            window.instances.basic.start();
+        };
+
+        window.stopBasic = () => {
+            if (window.instances.basic) window.instances.basic.stop();
+        };
+
+        window.restartBasic = () => {
+            if (window.instances.basic) window.instances.basic.restart();
+        };
+
+        // Typewriter Demo
+        window.startTypewriter = () => {
+            if (window.instances.typewriter) window.instances.typewriter.destroy();
+            window.instances.typewriter = new TypeWriter('#typewriter-demo', {
+                words: ['Professional', 'Developer', 'Creative', 'Innovative'],
+                times: { writer: 80, eraser: 40, read: 1200 },
+                effects: {
+                    typing: {
+                        randomSpeed: true,
+                        speedVariation: 0.3,
+                        pauseOnPunctuation: true,
+                        punctuationDelay: 400
+                    }
+                },
+                infinite: true
+            });
+            window.instances.typewriter.start();
+        };
+
+        window.stopTypewriter = () => {
+            if (window.instances.typewriter) window.instances.typewriter.stop();
+        };
+
+        let speedToggle = false;
+        window.changeSpeed = () => {
+            if (window.instances.typewriter) {
+                speedToggle = !speedToggle;
+                window.instances.typewriter.setSpeed(speedToggle ? 30 : 100);
+            }
+        };
+
+        // Fade Demo
+        window.startFade = () => {
+            if (window.instances.fade) window.instances.fade.destroy();
+            window.instances.fade = new FadeWriter('#fade-demo', {
+                words: ['Beautiful', 'Smooth', 'Elegant', 'Animations'],
+                times: { writer: 60, eraser: 30, read: 1800 },
+                infinite: true
+            });
+            window.instances.fade.start();
+        };
+
+        window.stopFade = () => {
+            if (window.instances.fade) window.instances.fade.stop();
+        };
+
+        let fadeDirection = 'up';
+        window.changeFadeDirection = () => {
+            if (window.instances.fade) {
+                const directions = ['up', 'down', 'left', 'right'];
+                const currentIndex = directions.indexOf(fadeDirection);
+                fadeDirection = directions[(currentIndex + 1) % directions.length];
+                window.instances.fade.setFadeDirection(fadeDirection);
+            }
+        };
+
+        // Glitch Demo
+        window.startGlitch = () => {
+            if (window.instances.glitch) window.instances.glitch.destroy();
+            window.instances.glitch = new GlitchWriter('#glitch-demo', {
+                words: ['SYSTEM', 'ERROR', 'MATRIX', 'GLITCH'],
+                times: { writer: 120, eraser: 80, read: 1500 },
+                infinite: true
+            });
+            window.instances.glitch.start();
+        };
+
+        window.stopGlitch = () => {
+            if (window.instances.glitch) window.instances.glitch.stop();
+        };
+
+        let glitchIntensity = 0.5;
+        window.changeGlitchIntensity = () => {
+            if (window.instances.glitch) {
+                glitchIntensity = glitchIntensity === 0.5 ? 1 : 0.5;
+                window.instances.glitch.setGlitchIntensity(glitchIntensity);
+            }
+        };
+
+        // Sequence Demo
+        window.startSequence = () => {
+            if (window.instances.sequence) window.instances.sequence.destroy();
+            window.instances.sequence = new WritingSequence()
+                .add('#sequence-demo-1', ['Creating', 'Amazing', 'Sequences'], {
+                    times: { writer: 80, eraser: 40, read: 1000 }
+                })
+                .wait(500)
+                .add('#sequence-demo-2', ['With', 'Multiple', 'Elements'], {
+                    times: { writer: 60, eraser: 30, read: 1000 }
+                })
+                .run();
+        };
+
+        window.stopSequence = () => {
+            if (window.instances.sequence) window.instances.sequence.stop();
+        };
+
+        // Auto-start first demo
+        setTimeout(() => {
+            window.startBasic();
+        }, 1000);
+    </script>
+</body>
+</html>
