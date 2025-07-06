@@ -1,7 +1,12 @@
-// DOM utilities for Writing.js v2.0.0
+// DOM utilities for Writing.js v2.0
+
+interface ElementCache {
+    data: Map<string, any>;
+    styles: Map<string, string>;
+}
 
 export class DOMUtils {
-    private static elementCache = new WeakMap<HTMLElement, any>();
+    private static elementCache = new WeakMap<HTMLElement, ElementCache>();
     private static observerCache = new WeakMap<HTMLElement, IntersectionObserver>();
 
     /**
@@ -24,39 +29,45 @@ export class DOMUtils {
     /**
      * Create element with attributes
      */
-    static createElement(tag: string, attributes: { [key: string]: string } = {}): HTMLElement {
+    static createElement(tag: string, attributes: Record<string, any> = {}): HTMLElement {
         const element = document.createElement(tag);
         
         Object.entries(attributes).forEach(([key, value]) => {
-            if (key === 'textContent') {
-                element.textContent = value;
-            } else if (key === 'innerHTML') {
+            if (key === 'innerHTML') {
                 element.innerHTML = value;
+            } else if (key === 'textContent') {
+                element.textContent = value;
+            } else if (key === 'className' || key === 'class') {
+                element.className = value;
             } else {
                 element.setAttribute(key, value);
             }
         });
-
+        
         return element;
     }
 
     /**
      * Apply styles to element efficiently
      */
-    static applyStyles(element: HTMLElement, styles: { [key: string]: string | number }): void {
-        const cssText = Object.entries(styles)
-            .map(([property, value]) => `${this.kebabCase(property)}: ${value}`)
-            .join('; ');
-        
-        element.style.cssText += cssText;
+    static applyStyles(element: HTMLElement, styles: Record<string, string>): void {
+        Object.entries(styles).forEach(([property, value]) => {
+            element.style.setProperty(property, value);
+        });
     }
 
     /**
      * Apply styles from array of CSS strings
      */
     static applyStylesFromArray(element: HTMLElement, styles: string[]): void {
-        const cssText = styles.join('; ');
-        element.style.cssText += cssText;
+        styles.forEach(style => {
+            if (style && style.includes(':')) {
+                const [property, value] = style.split(':').map(s => s.trim());
+                if (property && value) {
+                    element.style.setProperty(property, value);
+                }
+            }
+        });
     }
 
     /**
@@ -143,7 +154,10 @@ export class DOMUtils {
             entries.forEach(entry => {
                 callback(entry.isIntersecting);
             });
-        }, options);
+        }, {
+            threshold: 0.1,
+            ...options
+        });
 
         observer.observe(element);
         this.observerCache.set(element, observer);
@@ -236,12 +250,15 @@ export class DOMUtils {
      * Cache element data
      */
     static cacheElementData(element: HTMLElement, key: string, value: any): void {
-        let cache = this.elementCache.get(element);
-        if (!cache) {
-            cache = {};
-            this.elementCache.set(element, cache);
+        if (!this.elementCache.has(element)) {
+            this.elementCache.set(element, {
+                data: new Map(),
+                styles: new Map()
+            });
         }
-        cache[key] = value;
+        
+        const cache = this.elementCache.get(element)!;
+        cache.data.set(key, value);
     }
 
     /**
@@ -249,7 +266,7 @@ export class DOMUtils {
      */
     static getCachedElementData(element: HTMLElement, key: string): any {
         const cache = this.elementCache.get(element);
-        return cache ? cache[key] : undefined;
+        return cache?.data.get(key);
     }
 
     /**
@@ -267,5 +284,168 @@ export class DOMUtils {
         // Individual observers should be cleaned up via disconnectObserver
         this.elementCache = new WeakMap();
         this.observerCache = new WeakMap();
+    }
+
+    /**
+     * Add class to element
+     */
+    static addClass(element: HTMLElement, className: string): void {
+        element.classList.add(className);
+    }
+
+    /**
+     * Remove class from element
+     */
+    static removeClass(element: HTMLElement, className: string): void {
+        element.classList.remove(className);
+    }
+
+    /**
+     * Toggle class on element
+     */
+    static toggleClass(element: HTMLElement, className: string): void {
+        element.classList.toggle(className);
+    }
+
+    /**
+     * Check if element has class
+     */
+    static hasClass(element: HTMLElement, className: string): boolean {
+        return element.classList.contains(className);
+    }
+
+    /**
+     * Get element position
+     */
+    static getPosition(element: HTMLElement): { x: number; y: number } {
+        const rect = element.getBoundingClientRect();
+        return {
+            x: rect.left + window.scrollX,
+            y: rect.top + window.scrollY
+        };
+    }
+
+    /**
+     * Animate element using CSS
+     */
+    static animate(
+        element: HTMLElement,
+        keyframes: Keyframe[],
+        options: KeyframeAnimationOptions = {}
+    ): Animation {
+        return element.animate(keyframes, {
+            duration: 300,
+            easing: 'ease',
+            ...options
+        });
+    }
+
+    /**
+     * Set element text content safely
+     */
+    static setTextContent(element: HTMLElement, text: string): void {
+        element.textContent = text;
+    }
+
+    /**
+     * Set element HTML content safely
+     */
+    static setHTMLContent(element: HTMLElement, html: string): void {
+        // Basic XSS prevention
+        const div = document.createElement('div');
+        div.textContent = html;
+        element.innerHTML = div.innerHTML;
+    }
+
+    /**
+     * Wait for element to be ready
+     */
+    static waitForElement(selector: string, timeout = 5000): Promise<HTMLElement> {
+        return new Promise((resolve, reject) => {
+            const element = document.querySelector(selector) as HTMLElement;
+            if (element) {
+                resolve(element);
+                return;
+            }
+
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach(() => {
+                    const element = document.querySelector(selector) as HTMLElement;
+                    if (element) {
+                        observer.disconnect();
+                        resolve(element);
+                    }
+                });
+            });
+
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+
+            setTimeout(() => {
+                observer.disconnect();
+                reject(new Error(`Element ${selector} not found within ${timeout}ms`));
+            }, timeout);
+        });
+    }
+
+    /**
+     * Create element with styles
+     */
+    static createStyledElement(
+        tag: string,
+        styles: Record<string, string>,
+        attributes: Record<string, any> = {}
+    ): HTMLElement {
+        const element = this.createElement(tag, attributes);
+        this.applyStyles(element, styles);
+        return element;
+    }
+
+    /**
+     * Copy element styles
+     */
+    static copyStyles(from: HTMLElement, to: HTMLElement): void {
+        const fromStyles = window.getComputedStyle(from);
+        Array.from(fromStyles).forEach(property => {
+            to.style.setProperty(property, fromStyles.getPropertyValue(property));
+        });
+    }
+
+    /**
+     * Measure text width
+     */
+    static measureTextWidth(text: string, font?: string): number {
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d')!;
+        
+        if (font) {
+            context.font = font;
+        }
+        
+        return context.measureText(text).width;
+    }
+
+    /**
+     * Check if element is focused
+     */
+    static isFocused(element: HTMLElement): boolean {
+        return document.activeElement === element;
+    }
+
+    /**
+     * Get element's font family
+     */
+    static getFontFamily(element: HTMLElement): string {
+        return this.getComputedStyle(element, 'font-family');
+    }
+
+    /**
+     * Get element's font size
+     */
+    static getFontSize(element: HTMLElement): number {
+        const fontSize = this.getComputedStyle(element, 'font-size');
+        return parseFloat(fontSize);
     }
 }

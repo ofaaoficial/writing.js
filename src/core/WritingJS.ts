@@ -8,8 +8,58 @@ import {
     WritingState, 
     WritingEvents, 
     PerformanceMetrics,
-    AnimationFrame
+    AnimationFrame,
+    WritingOptions
 } from '../types/WritingTypes';
+
+const DEFAULT_CONFIG: WritingOptions = {
+    times: {
+        writer: 100,
+        eraser: 50,
+        read: 1500
+    },
+    cursor: {
+        enabled: true,
+        character: '|',
+        blinkSpeed: 800,
+        style: 'color: inherit; font-weight: normal;',
+        hideOnComplete: false
+    },
+    effects: {
+        sound: {
+            enabled: false,
+            volume: 0.5,
+            randomPitch: false
+        },
+        typing: {
+            randomSpeed: false,
+            speedVariation: 0.2,
+            pauseOnPunctuation: false,
+            punctuationDelay: 300
+        },
+        errors: {
+            enabled: false,
+            frequency: 0.05,
+            correctionDelay: 800,
+            typos: []
+        },
+        visual: {
+            fadeIn: false,
+            slideIn: false,
+            glitch: false,
+            shake: false
+        }
+    },
+    animation: {
+        infinite: false,
+        pauseOnHover: true,
+        direction: 'forward',
+        easing: 'ease',
+        delay: 0
+    },
+    styles: [],
+    debug: false
+};
 
 export class WritingJS extends EventEmitter {
     private config: WritingConfig;
@@ -30,11 +80,23 @@ export class WritingJS extends EventEmitter {
         
         this.id = this.generateId();
         this.element = ValidationUtils.validateElement(element);
-        this.config = ValidationUtils.validateConfig({
-            element: this.element,
+        
+        // Merge with defaults
+        this.config = {
+            ...DEFAULT_CONFIG,
+            ...config,
             words: config.words || this.getWordsFromElement(),
-            ...config
-        });
+            element: this.element,
+            times: { ...DEFAULT_CONFIG.times, ...config.times },
+            cursor: { ...DEFAULT_CONFIG.cursor, ...config.cursor },
+            effects: {
+                sound: { ...DEFAULT_CONFIG.effects.sound, ...config.effects?.sound },
+                typing: { ...DEFAULT_CONFIG.effects.typing, ...config.effects?.typing },
+                errors: { ...DEFAULT_CONFIG.effects.errors, ...config.effects?.errors },
+                visual: { ...DEFAULT_CONFIG.effects.visual, ...config.effects?.visual }
+            },
+            animation: { ...DEFAULT_CONFIG.animation, ...config.animation }
+        };
         
         this.state = this.initializeState();
         this.metrics = this.initializeMetrics();
@@ -93,7 +155,7 @@ export class WritingJS extends EventEmitter {
         }
         
         // Setup pause on hover
-        if (this.config.pauseOnHover) {
+        if (this.config.animation?.pauseOnHover) {
             this.setupHoverEvents();
         }
     }
@@ -277,7 +339,7 @@ export class WritingJS extends EventEmitter {
             return Array.from(elements).map(el => el.textContent || '').filter(text => text.length > 0);
         }
         
-        return [];
+        return ['Hello', 'World']; // Default words
     }
 
     /**
@@ -372,7 +434,7 @@ export class WritingJS extends EventEmitter {
         this.updateMetrics(currentTime);
         
         if (this.state.currentWordIndex >= this.config.words.length) {
-            if (this.config.infinite) {
+            if (this.config.animation?.infinite) {
                 this.state.currentWordIndex = 0;
                 this.state.currentCharIndex = 0;
                 this.clearContent();
@@ -409,7 +471,7 @@ export class WritingJS extends EventEmitter {
                     this.addCharacter(char);
                     
                     // Play sound effect
-                    if (this.config.effects.sound.enabled) {
+                    if (this.config.effects?.sound?.enabled) {
                         this.playSound('key');
                     }
                     
@@ -439,14 +501,14 @@ export class WritingJS extends EventEmitter {
         let delay = this.config.times.writer;
         
         // Add randomization
-        if (this.config.effects.typing.randomSpeed) {
-            const variation = this.config.effects.typing.speedVariation;
+        if (this.config.effects?.typing?.randomSpeed) {
+            const variation = this.config.effects.typing?.speedVariation || 0.2;
             delay += (Math.random() - 0.5) * delay * variation;
         }
         
         // Pause on punctuation
-        if (this.config.effects.typing.pauseOnPunctuation && /[.,!?;:]/.test(char)) {
-            delay += this.config.effects.typing.punctuationDelay;
+        if (this.config.effects?.typing?.pauseOnPunctuation && /[.,!?;:]/.test(char)) {
+            delay += this.config.effects.typing?.punctuationDelay || 300;
         }
         
         return Math.max(10, delay); // Minimum delay
@@ -469,15 +531,15 @@ export class WritingJS extends EventEmitter {
      * Apply visual effects to character
      */
     private applyVisualEffects(char: string): void {
-        if (this.config.effects.visual.fadeIn) {
+        if (this.config.effects?.visual?.fadeIn) {
             // Implement fade in effect
         }
         
-        if (this.config.effects.visual.shake) {
+        if (this.config.effects?.visual?.shake) {
             // Implement shake effect
         }
         
-        if (this.config.effects.visual.glitch) {
+        if (this.config.effects?.visual?.glitch) {
             // Implement glitch effect
         }
     }
@@ -506,7 +568,7 @@ export class WritingJS extends EventEmitter {
                 this.removeLastCharacter();
                 
                 // Play sound
-                if (this.config.effects.sound.enabled) {
+                if (this.config.effects?.sound?.enabled) {
                     this.playSound('delete');
                 }
                 
@@ -518,7 +580,7 @@ export class WritingJS extends EventEmitter {
                 this.state.currentCharIndex = 0;
                 this.emit('wordComplete', this.state.currentWord, this.state.currentWordIndex - 1);
                 
-                setTimeout(() => this.runAnimation(), this.config.animation.delay);
+                setTimeout(() => this.runAnimation(), this.config.animation?.delay || 0);
             }
         };
         
@@ -589,7 +651,7 @@ export class WritingJS extends EventEmitter {
      */
     private updateProgress(): void {
         const totalChars = this.config.words.reduce((sum, word) => sum + word.length, 0);
-        const currentChars = this.state.currentWordIndex * this.config.words.length + this.state.currentCharIndex;
+        const currentChars = this.state.currentWordIndex * this.config.words.reduce((avg, word) => (avg + word.length) / 2, 0) + this.state.currentCharIndex;
         this.state.progress = Math.min(currentChars / totalChars, 1);
         this.state.elapsedTime = performance.now() - this.state.startTime;
     }
@@ -613,8 +675,8 @@ export class WritingJS extends EventEmitter {
         this.metrics.animationDuration = this.state.elapsedTime;
         
         // Memory usage (approximate)
-        if (performance.memory) {
-            this.metrics.memoryUsage = (performance.memory as any).usedJSHeapSize;
+        if ((performance as any).memory) {
+            this.metrics.memoryUsage = (performance as any).memory.usedJSHeapSize;
         }
     }
 
@@ -632,7 +694,7 @@ export class WritingJS extends EventEmitter {
     }
 
     public setOptions(options: Partial<WritingConfig>): this {
-        this.config = ValidationUtils.validateConfig({ ...this.config, ...options });
+        this.config = { ...this.config, ...options };
         return this;
     }
 
