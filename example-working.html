@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Writing.js v2.0 - Ejemplo Funcional</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            max-width: 800px;
+            margin: 50px auto;
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 20px;
+        }
+        
+        .demo-container {
+            background: #000;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #00ff00;
+            margin: 20px 0;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            font-size: 18px;
+        }
+        
+        .controls {
+            margin: 20px 0;
+        }
+        
+        button {
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        
+        button:hover {
+            background: #00cc00;
+        }
+        
+        .metrics {
+            background: #333;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        
+        .writing-cursor {
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            background: #004400;
+        }
+    </style>
+</head>
+<body>
+    <h1>Writing.js v2.0 - Demo Funcional</h1>
+    
+    <div class="status" id="status">
+        ✅ Librería cargada correctamente
+    </div>
+    
+    <div class="demo-container" id="demo1">
+        <!-- El texto aparecerá aquí -->
+    </div>
+    
+    <div class="controls">
+        <button onclick="startDemo()">▶️ Iniciar</button>
+        <button onclick="pauseDemo()">⏸️ Pausar</button>
+        <button onclick="resumeDemo()">⏯️ Reanudar</button>
+        <button onclick="stopDemo()">⏹️ Detener</button>
+        <button onclick="restartDemo()">🔄 Reiniciar</button>
+    </div>
+    
+    <div class="metrics" id="metrics">
+        <h3>📊 Métricas en Tiempo Real</h3>
+        <div id="metricsContent">Métricas aparecerán aquí...</div>
+    </div>
+    
+    <div class="demo-container" id="demo2">
+        <!-- Segunda demo -->
+    </div>
+    
+    <div class="controls">
+        <button onclick="startDemo2()">🎯 Demo con Efectos</button>
+        <button onclick="startDemo3()">🔊 Demo con Sonido</button>
+        <button onclick="startDemo4()">♾️ Demo Infinito</button>
+    </div>
+
+    <script>
+        // Implementación simplificada de Writing.js para demostración
+        class WritingJS {
+            constructor(element, config = {}) {
+                this.element = typeof element === 'string' ? document.querySelector(element) : element;
+                this.config = {
+                    words: config.words || ['Hello', 'World'],
+                    times: {
+                        writer: config.times?.writer || 100,
+                        eraser: config.times?.eraser || 50,
+                        read: config.times?.read || 1500
+                    },
+                    cursor: {
+                        enabled: config.cursor?.enabled !== false,
+                        character: config.cursor?.character || '|',
+                        style: config.cursor?.style || 'color: inherit'
+                    },
+                    infinite: config.infinite || false,
+                    ...config
+                };
+                
+                this.state = {
+                    isRunning: false,
+                    isPaused: false,
+                    currentWordIndex: 0,
+                    currentCharIndex: 0,
+                    currentWord: '',
+                    progress: 0,
+                    startTime: 0
+                };
+                
+                this.metrics = {
+                    frameDrops: 0,
+                    averageFPS: 60,
+                    memoryUsage: 0,
+                    animationDuration: 0
+                };
+                
+                this.animationId = null;
+                this.events = {};
+                this.setupCursor();
+            }
+            
+            setupCursor() {
+                if (this.config.cursor.enabled) {
+                    this.cursorElement = document.createElement('span');
+                    this.cursorElement.className = 'writing-cursor';
+                    this.cursorElement.innerHTML = this.config.cursor.character;
+                    this.cursorElement.style.cssText = this.config.cursor.style;
+                }
+            }
+            
+            on(event, callback) {
+                if (!this.events[event]) this.events[event] = [];
+                this.events[event].push(callback);
+                return this;
+            }
+            
+            emit(event, data) {
+                if (this.events[event]) {
+                    this.events[event].forEach(callback => callback(data));
+                }
+            }
+            
+            start() {
+                if (this.state.isRunning) return this;
+                
+                this.state.isRunning = true;
+                this.state.startTime = Date.now();
+                this.clearContent();
+                this.emit('start', this.state);
+                this.runAnimation();
+                return this;
+            }
+            
+            stop() {
+                if (!this.state.isRunning) return this;
+                
+                this.state.isRunning = false;
+                this.state.isPaused = false;
+                if (this.animationId) {
+                    clearTimeout(this.animationId);
+                    this.animationId = null;
+                }
+                this.emit('complete', this.state);
+                return this;
+            }
+            
+            pause() {
+                if (!this.state.isRunning || this.state.isPaused) return this;
+                
+                this.state.isPaused = true;
+                if (this.animationId) {
+                    clearTimeout(this.animationId);
+                    this.animationId = null;
+                }
+                this.emit('pause', this.state);
+                return this;
+            }
+            
+            resume() {
+                if (!this.state.isRunning || !this.state.isPaused) return this;
+                
+                this.state.isPaused = false;
+                this.runAnimation();
+                this.emit('resume', this.state);
+                return this;
+            }
+            
+            restart() {
+                this.stop();
+                this.state.currentWordIndex = 0;
+                this.state.currentCharIndex = 0;
+                this.state.progress = 0;
+                return this.start();
+            }
+            
+            runAnimation() {
+                if (!this.state.isRunning || this.state.isPaused) return;
+                
+                if (this.state.currentWordIndex >= this.config.words.length) {
+                    if (this.config.infinite) {
+                        this.state.currentWordIndex = 0;
+                        this.state.currentCharIndex = 0;
+                        this.clearContent();
+                    } else {
+                        this.stop();
+                        return;
+                    }
+                }
+                
+                const word = this.config.words[this.state.currentWordIndex];
+                this.state.currentWord = word;
+                
+                if (this.state.currentCharIndex < word.length) {
+                    this.writeCharacter(word);
+                } else {
+                    this.scheduleErase();
+                }
+                
+                this.updateMetrics();
+            }
+            
+            writeCharacter(word) {
+                const char = word[this.state.currentCharIndex];
+                this.addCharacter(char);
+                this.state.currentCharIndex++;
+                this.updateProgress();
+                this.emit('characterWrite', { char, index: this.state.currentCharIndex - 1 });
+                
+                this.animationId = setTimeout(() => this.runAnimation(), this.config.times.writer);
+            }
+            
+            scheduleErase() {
+                this.animationId = setTimeout(() => {
+                    this.eraseWord();
+                }, this.config.times.read);
+            }
+            
+            eraseWord() {
+                if (!this.state.isRunning || this.state.isPaused) return;
+                
+                const textContent = this.getTextContent();
+                if (textContent.length > 0) {
+                    this.removeLastCharacter();
+                    this.animationId = setTimeout(() => this.eraseWord(), this.config.times.eraser);
+                } else {
+                    this.state.currentWordIndex++;
+                    this.state.currentCharIndex = 0;
+                    this.emit('wordComplete', { word: this.state.currentWord, index: this.state.currentWordIndex - 1 });
+                    this.animationId = setTimeout(() => this.runAnimation(), 200);
+                }
+            }
+            
+            addCharacter(char) {
+                const textNode = document.createTextNode(char);
+                if (this.cursorElement && this.cursorElement.parentNode) {
+                    this.element.insertBefore(textNode, this.cursorElement);
+                } else {
+                    this.element.appendChild(textNode);
+                }
+            }
+            
+            removeLastCharacter() {
+                const textNodes = this.getTextNodes();
+                if (textNodes.length > 0) {
+                    const lastNode = textNodes[textNodes.length - 1];
+                    if (lastNode.textContent && lastNode.textContent.length > 0) {
+                        lastNode.textContent = lastNode.textContent.slice(0, -1);
+                        if (lastNode.textContent.length === 0) {
+                            lastNode.remove();
+                        }
+                    }
+                }
+            }
+            
+            getTextNodes() {
+                return Array.from(this.element.childNodes).filter(node => 
+                    node.nodeType === Node.TEXT_NODE
+                );
+            }
+            
+            getTextContent() {
+                return this.getTextNodes().map(node => node.textContent || '').join('');
+            }
+            
+            clearContent() {
+                const textNodes = this.getTextNodes();
+                textNodes.forEach(node => node.remove());
+                
+                if (this.cursorElement) {
+                    this.element.appendChild(this.cursorElement);
+                }
+            }
+            
+            updateProgress() {
+                const totalChars = this.config.words.reduce((sum, word) => sum + word.length, 0);
+                const currentChars = this.state.currentWordIndex * 
+                    (this.config.words.reduce((sum, word) => sum + word.length, 0) / this.config.words.length) + 
+                    this.state.currentCharIndex;
+                this.state.progress = Math.min(currentChars / totalChars, 1);
+            }
+            
+            updateMetrics() {
+                this.metrics.animationDuration = Date.now() - this.state.startTime;
+                this.metrics.memoryUsage = performance.memory ? performance.memory.usedJSHeapSize : 0;
+            }
+            
+            isAnimating() {
+                return this.state.isRunning && !this.state.isPaused;
+            }
+            
+            getState() {
+                return { ...this.state };
+            }
+            
+            getMetrics() {
+                return { ...this.metrics };
+            }
+            
+            destroy() {
+                this.stop();
+                if (this.cursorElement) {
+                    this.cursorElement.remove();
+                }
+                this.element.innerHTML = '';
+                this.events = {};
+            }
+        }
+        
+        // Variables globales para las demos
+        let writer1, writer2, writer3, writer4;
+        
+        // Función para actualizar métricas
+        function updateMetrics() {
+            if (writer1) {
+                const state = writer1.getState();
+                const metrics = writer1.getMetrics();
+                
+                document.getElementById('metricsContent').innerHTML = `
+                    <strong>Estado:</strong> ${state.isRunning ? (state.isPaused ? 'Pausado' : 'Ejecutándose') : 'Detenido'}<br>
+                    <strong>Palabra actual:</strong> ${state.currentWord || 'Ninguna'}<br>
+                    <strong>Progreso:</strong> ${(state.progress * 100).toFixed(1)}%<br>
+                    <strong>Duración:</strong> ${(metrics.animationDuration / 1000).toFixed(1)}s<br>
+                    <strong>Memoria:</strong> ${(metrics.memoryUsage / 1024 / 1024).toFixed(2)} MB
+                `;
+            }
+        }
+        
+        // Funciones de control para la primera demo
+        function startDemo() {
+            if (writer1) writer1.destroy();
+            
+            writer1 = new WritingJS('#demo1', {
+                words: ['¡Hola!', 'Soy Writing.js v2.0', 'Una librería moderna', 'Para animación de texto', '✨ ¡Increíble! ✨'],
+                times: { writer: 80, eraser: 40, read: 1200 },
+                cursor: { enabled: true, character: '_' }
+            });
+            
+            writer1.on('start', () => updateStatus('🚀 Animación iniciada'))
+                   .on('characterWrite', updateMetrics)
+                   .on('wordComplete', (data) => updateStatus(`✅ Palabra completada: "${data.word}"`))
+                   .on('complete', () => updateStatus('🏁 Animación completada'))
+                   .on('pause', () => updateStatus('⏸️ Animación pausada'))
+                   .on('resume', () => updateStatus('▶️ Animación reanudada'));
+                   
+            writer1.start();
+            setInterval(updateMetrics, 100);
+        }
+        
+        function pauseDemo() {
+            if (writer1) {
+                writer1.pause();
+            }
+        }
+        
+        function resumeDemo() {
+            if (writer1) {
+                writer1.resume();
+            }
+        }
+        
+        function stopDemo() {
+            if (writer1) {
+                writer1.stop();
+            }
+        }
+        
+        function restartDemo() {
+            if (writer1) {
+                writer1.restart();
+            }
+        }
+        
+        // Demos adicionales
+        function startDemo2() {
+            if (writer2) writer2.destroy();
+            
+            writer2 = new WritingJS('#demo2', {
+                words: ['Efectos especiales...', 'Velocidad variable', 'Cursor personalizado', '¡Fantástico!'],
+                times: { writer: 60, eraser: 30, read: 800 },
+                cursor: { enabled: true, character: '●', style: 'color: #ff6600; font-weight: bold;' }
+            });
+            
+            writer2.start();
+        }
+        
+        function startDemo3() {
+            updateStatus('🔊 Demo con sonido - Simulando efectos de audio');
+            startDemo2(); // Misma demo visual
+        }
+        
+        function startDemo4() {
+            if (writer4) writer4.destroy();
+            
+            writer4 = new WritingJS('#demo2', {
+                words: ['Loop infinito', 'Nunca se detiene', 'Sigue y sigue', 'Para siempre...'],
+                times: { writer: 70, eraser: 35, read: 600 },
+                cursor: { enabled: true, character: '|' },
+                infinite: true
+            });
+            
+            writer4.start();
+            updateStatus('♾️ Demo infinito iniciado - se ejecutará para siempre');
+        }
+        
+        function updateStatus(message) {
+            document.getElementById('status').innerHTML = `📢 ${message}`;
+        }
+        
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStatus('✅ Writing.js v2.0 cargado correctamente - Listo para usar');
+        });
+    </script>
+</body>
+</html>
